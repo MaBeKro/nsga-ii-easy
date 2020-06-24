@@ -110,7 +110,7 @@ def select_next_population(num_objectives, population, previous_population=set()
     # take the individuals with the highest crowding distance from the final front
     if final_front:
         sorted_final_front = sort_crowding_distance(final_front,
-            range_objectives(population, num_objectives), same_rank=True)
+            range_objectives(population), same_rank=True)
 
         new_population.update(sorted_final_front[population_size - len(new_population):])
     return new_population
