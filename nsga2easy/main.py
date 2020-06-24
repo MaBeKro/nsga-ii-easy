@@ -92,10 +92,13 @@ def range_objectives(population):
     return [ max(af) - min(af) for af in zip(*(p.fitness for p in population)) ]
 
 
-def select_next_population(num_objectives, population, previous_population=set(), population_size=None, range_objectives=None):
+def select_next_population(num_objectives, population, previous_population=set(), population_size=None, range_objectives_lst=None):
     if not population_size:
         population_size = len(population)
-    population = population.union(previous_population)
+    population.update(previous_population)
+
+    if not range_objectives_lst:
+        range_objectives_lst = range_objectives(population)
 
     new_population = set()
     final_front = set()
@@ -110,7 +113,7 @@ def select_next_population(num_objectives, population, previous_population=set()
     # take the individuals with the highest crowding distance from the final front
     if final_front:
         sorted_final_front = sort_crowding_distance(final_front,
-            range_objectives(population), same_rank=True)
+            range_objectives_lst, same_rank=True)
 
         new_population.update(sorted_final_front[population_size - len(new_population):])
     return new_population
