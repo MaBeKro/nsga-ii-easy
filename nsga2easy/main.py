@@ -91,7 +91,7 @@ def sort_crowding_distance(population, range_objectives_lst, same_rank=False):
                     key=lambda tp: tp[0])))
 
 def range_objectives(population):
-    return [ max(af) - min(af) for af in zip(*(p.fitness for p in population)) ]
+    return [ max(af) - min(af) + 1 for af in zip(*(p.fitness for p in population)) ]
 
 
 def select_next_population(population, previous_population=[], k=None, range_objectives_lst=None):
