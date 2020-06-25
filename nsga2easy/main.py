@@ -3,9 +3,8 @@ from itertools import chain
 from itertools import groupby
 
 # for maximizing use negative mask [ ..., -1, ...]
-def augment_fitnesses(fitnesses, min_max_mask):
-    for f in fitnesses:
-        yield [ v * m for v, m in zip (f, min_max_mask) ]
+def augment_fitness(fitness, min_max_mask):
+    return [ v * m for v, m in zip (fitness, min_max_mask) ]
 
 # we minimize, so an individual that is all smaller is definetily better
 def dominates(fitness1, fitness2):
