@@ -2,7 +2,7 @@ import unittest
 import random
 import itertools
 
-from src.main import fast_non_dominated_sort, sort_crowding_distance, Individual
+from nsga2easy.main import fast_non_dominated_sort, sort_crowding_distance, Individual
 
 class TestFastNonDominatedSort(unittest.TestCase):
     @classmethod

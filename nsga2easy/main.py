@@ -3,7 +3,7 @@ from itertools import chain
 from itertools import groupby
 
 # for maximizing use negative mask [ ..., -1, ...]
-def augment_fitness(fitness, min_max_mask):
+def mask_fitness(fitness, min_max_mask):
     return [ v * m for v, m in zip (fitness, min_max_mask) ]
 
 # we minimize, so an individual that is all smaller is definetily better
@@ -58,11 +58,11 @@ def fast_non_dominated_sort(population):
         yield current_front
 
 
-def sort_crowding_distance(population, range_objectives, same_rank=False):
+def sort_crowding_distance(population, range_objectives_lst, same_rank=False):
     l = len(population)
     for p in population:
         p.crowding_distance = 0
-    for objective, current_range in enumerate(range_objectives):
+    for objective, current_range in enumerate(range_objectives_lst):
         population = sorted(population, key=lambda p: p.fitness[objective])
         population[0].crowding_distance, population[-1].crowding_distance = float('inf'), float('inf')
         for i in range(1, l - 1):
@@ -91,33 +91,41 @@ def range_objectives(population):
     return [ max(af) - min(af) for af in zip(*(p.fitness for p in population)) ]
 
 
-def select_next_population(num_objectives, population, previous_population=set(), population_size=None, range_objectives_lst=None):
-    if not population_size:
-        population_size = len(population)
+def select_next_population(population, previous_population=set(), k=None, range_objectives_lst=None):
+    if k is None:
+        k = len(population)
     population.update(previous_population)
 
     if not range_objectives_lst:
         range_objectives_lst = range_objectives(population)
 
-    new_population = set()
-    final_front = set()
+    new_population = []
     for front in fast_non_dominated_sort(population):
         # add fronts until one does not fit completely into the new generation
-        if len(front) + len(new_population) <= population_size:
-            new_population.update(front)
+        sorted_front = sort_crowding_distance(front, range_objectives_lst, same_rank=True)
+        if len(front) + len(new_population) <= k:
+            # TODO: we could also sort these fronts with crowding distance
+            new_population.extend(sorted_front)
         else:
-            final_front = front
+            new_population.extend(sorted_front[:k - len(new_population)])
             break
     
-    # take the individuals with the highest crowding distance from the final front
-    if final_front:
-        sorted_final_front = sort_crowding_distance(final_front,
-            range_objectives_lst, same_rank=True)
-
-        new_population.update(sorted_final_front[population_size - len(new_population):])
     return new_population
     
+def select_next_population_wrapped(population_fitness, population_values=None, k=None, mask=None, range_objectives_lst=None):
+    if population_values is None:
+        population_values = list(range(len(population_fitness)))
+    if mask is None:
+        population = [ Individual(f, v) for f, v in zip(population_fitness, population_values)]
+    else:
+        population = [ Individual(mask_fitness(f, mask), v) for f, v in zip(population_fitness, population_values)]
+    new_population = select_next_population(population, k=k, range_objectives_lst=range_objectives_lst)
 
+    return\
+        [ p.fitness for p in new_population],\
+        [ p.value for p in new_population],\
+        [ p.rank for p in new_population],
+    
     
 
 

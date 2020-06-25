@@ -41,7 +41,7 @@ def evolve():
         previous_population = population
 
         # Selection
-        population = { copy.deepcopy(p) for p in select_next_population(2, population, previous_population=previous_population) }
+        population = { copy.deepcopy(p) for p in select_next_population(population, previous_population=previous_population) }
         
         for p in population:
             # Mutation
