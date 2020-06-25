@@ -6,6 +6,9 @@ from itertools import groupby
 def mask_fitness(fitness, min_max_mask):
     return [ v * m for v, m in zip (fitness, min_max_mask) ]
 
+def unmask_fitness(fitness, min_max_mask):
+    return [ v / m for v, m in zip (fitness, min_max_mask) ]
+
 # we minimize, so an individual that is all smaller is definetily better
 def dominates(fitness1, fitness2):
     """
@@ -91,10 +94,10 @@ def range_objectives(population):
     return [ max(af) - min(af) for af in zip(*(p.fitness for p in population)) ]
 
 
-def select_next_population(population, previous_population=set(), k=None, range_objectives_lst=None):
+def select_next_population(population, previous_population=[], k=None, range_objectives_lst=None):
     if k is None:
         k = len(population)
-    population.update(previous_population)
+    population.extend(previous_population)
 
     if not range_objectives_lst:
         range_objectives_lst = range_objectives(population)
@@ -121,10 +124,16 @@ def select_next_population_wrapped(population_fitness, population_values=None, k
         population = [ Individual(mask_fitness(f, mask), v) for f, v in zip(population_fitness, population_values)]
     new_population = select_next_population(population, k=k, range_objectives_lst=range_objectives_lst)
 
-    return\
-        [ p.fitness for p in new_population],\
-        [ p.value for p in new_population],\
-        [ p.rank for p in new_population],
+    if mask:
+        return\
+            [ unmask_fitness(p.fitness, mask) for p in new_population ],\
+            [ p.value for p in new_population ],\
+            [ p.rank for p in new_population ],
+    else:
+        return\
+            [ p.fitness for p in new_population ],\
+            [ p.value for p in new_population ],\
+            [ p.rank for p in new_population ],
     
     
 
