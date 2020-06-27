@@ -26,8 +26,8 @@ def evolve():
     population_size = 200
     num_generations = 10
 
-    previous_population = {}
-    population = { Individual(None, random.random() * (upper - lower) + lower) for _ in range(population_size) }
+    previous_population = []
+    population = [ Individual(None, random.random() * (upper - lower) + lower) for _ in range(population_size) ]
 
 
     for generation in range(num_generations):
@@ -41,7 +41,7 @@ def evolve():
         previous_population = population
 
         # Selection
-        population = { copy.deepcopy(p) for p in select_next_population(population, previous_population=previous_population) }
+        population = [ copy.deepcopy(p) for p in select_next_population(population, previous_population=previous_population, k=population_size) ]
         
         for p in population:
             # Mutation

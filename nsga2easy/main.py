@@ -63,6 +63,8 @@ def fast_non_dominated_sort(population):
 
 def sort_crowding_distance(population, range_objectives_lst, same_rank=False):
     l = len(population)
+    if l == 0:
+        return []
     for p in population:
         p.crowding_distance = 0
     for objective, current_range in enumerate(range_objectives_lst):
@@ -116,7 +118,7 @@ def select_next_population(population, previous_population=[], k=None, range_obj
     return new_population
     
 def select_next_population_wrapped(population_fitness, population_values=None, k=None, mask=None, range_objectives_lst=None):
-    if population_values is None:
+    if not population_values:
         population_values = list(range(len(population_fitness)))
     if mask is None:
         population = [ Individual(f, v) for f, v in zip(population_fitness, population_values)]
