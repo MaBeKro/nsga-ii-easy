@@ -107,11 +107,11 @@ def select_next_population(population, previous_population=[], k=None, range_obj
     new_population = []
     for front in fast_non_dominated_sort(population):
         # add fronts until one does not fit completely into the new generation
-        sorted_front = sort_crowding_distance(front, range_objectives_lst, same_rank=True)
         if len(front) + len(new_population) <= k:
             # TODO: we could also sort these fronts with crowding distance
-            new_population.extend(sorted_front)
+            new_population.extend(front)
         else:
+            sorted_front = sort_crowding_distance(front, range_objectives_lst, same_rank=True)
             new_population.extend(sorted_front[:k - len(new_population)])
             break
     
